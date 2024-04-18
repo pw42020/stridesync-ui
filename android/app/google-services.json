@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "428070319156",
+    "project_id": "stridesync-2ded9",
+    "storage_bucket": "stridesync-2ded9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428070319156:android:8645b15d82ada7c2d24661",
+        "android_client_info": {
+          "package_name": "com.example.stridesync_ui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkmEHOpUbz2nr4mzb4OAIPP1fyVr-TDZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
