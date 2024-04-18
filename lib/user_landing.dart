@@ -66,6 +66,28 @@ class _userLandingScreen extends State<userLanding> {
                     const SizedBox(
                       height: 50,
                     ),
+                    
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xFF660033),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                        minimumSize: Size(constraints.maxWidth * 0.3, 36),
+                      ),
+                      onPressed: () {},
+                      child: const Text("Download from StrideSync",
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          )),
+                    ),
+                    
+                    SizedBox(
+                      height: 50,
+                    ),
+                    
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
