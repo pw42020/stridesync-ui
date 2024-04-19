@@ -22,6 +22,27 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _signInWithPopUp() {
+    try {
+      _signIn();
+    } catch (e) {
+      // set up modal and print error
+      print(e);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  Text("Downloading from StrideSync"),
+                ],
+              ),
+            );
+          });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(20))),
                     minimumSize: Size(double.infinity, 40),
                   ),
-                  onPressed: _signIn,
+                  onPressed: () => _signInWithPopUp(),
                   child: const Text("Log In",
                       style: TextStyle(
                         fontSize: 18.0,
@@ -127,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _signIn() async {
     String email = _emailController.text;
     String password = _passwordController.text;
-
+    print("$email, $password");
     User? user = await _auth.signInWithEmailAndPassword(email, password);
 
     if (user != null) {

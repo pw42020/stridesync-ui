@@ -1,15 +1,46 @@
-import "package:firebase_auth/firebase_auth.dart";
-import "package:firebase_core/firebase_core.dart";
 import "package:flutter/material.dart";
+import "package:stridesync_ui/components/post.dart";
+import "package:stridesync_ui/python_interface.dart";
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class userLanding extends StatefulWidget {
-  userLanding({super.key});
+class UserLanding extends StatefulWidget {
+  const UserLanding({super.key});
 
   @override
-  State<userLanding> createState() => _userLandingScreen();
+  State<UserLanding> createState() => _UserLandingScreen();
 }
 
-class _userLandingScreen extends State<userLanding> {
+class _UserLandingScreen extends State<UserLanding> {
+  final List<Post> _posts = List<Post>.empty(growable: true);
+
+  // upon user landing screen opening, get all posts from firestore users/uid
+  @override
+  void initState() {
+    super.initState();
+    // get all posts from firestore
+    // add to _posts
+    FirebaseFirestore.instance
+        .collection('posts')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        // print(doc["title"]);
+        // print(doc["description"]);
+        // print(doc["imageUrl"]);
+        // print(doc["movieUrl"]);
+        // print(doc["author"]);
+        _posts.add(Post(
+          author: doc["author"],
+          title: doc["title"],
+          description: doc["description"],
+          // imageUrl: doc["imageUrl"],
+          // movieUrl: doc["movieUrl"],
+          id: doc.id,
+        ));
+      }
+      print('got ${_posts.length} posts');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +97,6 @@ class _userLandingScreen extends State<userLanding> {
                     const SizedBox(
                       height: 50,
                     ),
-                    
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -77,17 +107,34 @@ class _userLandingScreen extends State<userLanding> {
                                 BorderRadius.all(Radius.circular(20))),
                         minimumSize: Size(constraints.maxWidth * 0.3, 36),
                       ),
-                      onPressed: () {},
+                      onPressed: () => {
+                        // creating loading modal
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return const AlertDialog(
+                                content: Row(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    Text("Downloading from StrideSync"),
+                                  ],
+                                ),
+                              );
+                            }),
+                        downloadFileFromStrideSync().then((value) => {
+                              Navigator.pop(context),
+                              // state error or success
+                              print('hello world')
+                            })
+                      },
                       child: const Text("Download from StrideSync",
                           style: TextStyle(
                             fontSize: 18.0,
                           )),
                     ),
-                    
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
-                    
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -98,7 +145,10 @@ class _userLandingScreen extends State<userLanding> {
                                 BorderRadius.all(Radius.circular(20))),
                         minimumSize: Size(constraints.maxWidth * 0.3, 36),
                       ),
-                      onPressed: () {},
+                      onPressed: () => {
+                        // navigate to createPost
+                        Navigator.pushNamed(context, '/createPost')
+                      },
                       child: const Text("Upload New Activity",
                           style: TextStyle(
                             fontSize: 18.0,
@@ -107,24 +157,8 @@ class _userLandingScreen extends State<userLanding> {
                   ]),
                 ),
 
-                Expanded(
-                    child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Card(
-                          child: SizedBox(
-                              width: constraints.maxWidth * 0.6,
-                              height: constraints.maxHeight * 0.25,
-                              child: Text("Thing"))),
-                      Card(
-                          child: SizedBox(
-                              width: constraints.maxWidth * 0.6,
-                              height: constraints.maxHeight * 0.25,
-                              child: Text("Thing"))),
-                    ],
-                  ),
-                ))
+                // show the first post
+                if (_posts.isNotEmpty) _posts[0],
               ],
             )
           ]);
