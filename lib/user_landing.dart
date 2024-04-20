@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:stridesync_ui/components/post.dart";
 import "package:stridesync_ui/python_interface.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserLanding extends StatefulWidget {
   const UserLanding({super.key});
@@ -14,13 +15,16 @@ class _UserLandingScreen extends State<UserLanding> {
   final List<Post> _posts = List<Post>.empty(growable: true);
 
   // upon user landing screen opening, get all posts from firestore users/uid
-  @override
-  void initState() {
-    super.initState();
-    // get all posts from firestore
-    // add to _posts
+  var _loading = true;
+  final User? _user = FirebaseAuth.instance.currentUser;
+  final int _initNumPosts =
+      5; // initial number of posts to retrieve from firestore
+
+  _loadPosts() async {
     FirebaseFirestore.instance
-        .collection('posts')
+        .collection('users/${_user!.uid}/posts')
+        .orderBy("datePosted", descending: true)
+        .limit(_initNumPosts)
         .get()
         .then((QuerySnapshot querySnapshot) {
       for (var doc in querySnapshot.docs) {
@@ -33,14 +37,30 @@ class _UserLandingScreen extends State<UserLanding> {
           author: doc["author"],
           title: doc["title"],
           description: doc["description"],
-          // imageUrl: doc["imageUrl"],
-          // movieUrl: doc["movieUrl"],
+          // runFileUrl: doc["runFileUrl"],
+          datePosted: doc["datePosted"],
           id: doc.id,
+          thumbnailLink: doc["thumbnailLink"],
+          videoLink: doc["videoLink"],
         ));
       }
       print('got ${_posts.length} posts');
+      // set _loading to false
+      setState(() {
+        _loading = false;
+      });
     });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    // get all posts from firestore
+    _loadPosts();
+  }
+  // get user information
+
+  // get /users/uid from firestore
 
   @override
   Widget build(BuildContext context) {
@@ -83,15 +103,38 @@ class _UserLandingScreen extends State<UserLanding> {
               children: [
                 // Profile Card
                 Container(
-                  padding: EdgeInsets.all(10),
-                  width: constraints.maxWidth * 0.3,
+                  padding: EdgeInsets.all(constraints.maxWidth * 0.01),
+                  width: constraints.maxWidth * 0.35,
                   child: Column(children: [
                     Card(
                       child: SizedBox(
                           width: constraints.maxWidth * 0.3,
-                          height: constraints.maxHeight * 0.25,
-                          child: Center(
-                            child: Text("Hello, User"),
+                          height: constraints.maxHeight * 0.2,
+                          // padding: EdgeInsets.all(10),
+                          child: Row(
+                            // center the children
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: constraints.maxWidth * 0.05,
+                                backgroundImage: NetworkImage(_user!.photoURL!),
+                              ),
+                              const SizedBox(width: 10),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _user!.displayName!,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(_user!.email!),
+                                  Text("Total Activities: ${_posts.length}"),
+                                ],
+                              ),
+                            ],
                           )),
                     ),
                     const SizedBox(
@@ -128,6 +171,7 @@ class _UserLandingScreen extends State<UserLanding> {
                             })
                       },
                       child: const Text("Download from StrideSync",
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18.0,
                           )),
@@ -157,8 +201,45 @@ class _UserLandingScreen extends State<UserLanding> {
                   ]),
                 ),
 
-                // show the first post
-                if (_posts.isNotEmpty) _posts[0],
+                // show the first post)
+                if (_loading)
+                  const CircularProgressIndicator()
+                else
+                  Expanded(
+                      flex: 1,
+                      child: Container(
+                          padding: EdgeInsets.only(
+                              right: constraints.maxWidth * 0.01),
+                          child: SizedBox(
+                              height: constraints.maxHeight * 0.8,
+                              child: RefreshIndicator(
+                                  onRefresh: () => _loadPosts(),
+                                  color: Colors.white,
+                                  backgroundColor: Colors.blue,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: _posts.length,
+                                    itemBuilder: (context, index) {
+                                      return _posts[index];
+                                    },
+                                  ))))),
+                // if (_posts.isNotEmpty)
+                //   Expanded(
+                //       flex: 1,
+                //       child: Container(
+                //           padding: EdgeInsets.only(
+                //               right: constraints.maxWidth * 0.01),
+                //           child: SizedBox(
+                //               height: constraints.maxHeight * 0.8,
+                //               child: ListView.builder(
+                //                 itemCount: _posts.length,
+                //                 itemBuilder: (context, index) {
+                //                   return _posts[index];
+                //                 },
+                //               ))))
+                // else
+                //   const Text("No posts yet"),
               ],
             )
           ]);

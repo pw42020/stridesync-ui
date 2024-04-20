@@ -11,14 +11,14 @@ class CreatePost extends StatefulWidget {
   const CreatePost({Key? key}) : super(key: key);
 
   @override
-  _CreatePostState createState() => _CreatePostState();
+  CreatePostState createState() => CreatePostState();
 }
 
-class _CreatePostState extends State<CreatePost> {
+class CreatePostState extends State<CreatePost> {
   File? _file;
 
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void dispose() {
@@ -78,24 +78,28 @@ class _CreatePostState extends State<CreatePost> {
           FirebaseStorage.instance.ref().child('runs/$uid/${_file!.path}');
       await ref.putFile(_file!);
       // add title, description to firestore
-      await FirebaseFirestore.instance.collection('posts').add({
-        'title': 'title',
+      await FirebaseFirestore.instance.collection('users/$uid/posts').add({
+        'title': _titleController.text,
         'author': uid,
-        'description': 'description',
-        'file': await ref.getDownloadURL(),
+        'description': _descriptionController.text,
+        'runFileUrl': await ref.getDownloadURL(),
+        'datePosted': FieldValue.serverTimestamp(),
       });
       // get /users/uid, add post to user's posts
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'posts': FieldValue.arrayUnion([uid]),
       });
     } catch (e) {
+      print(e);
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Error uploading file'),
-      ));
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      //   content: Text('Error uploading file'),
+      // ));
     }
     // close modal
     Navigator.pop(context);
+    // delay for half a second to not be jarring
+    await Future.delayed(const Duration(seconds: 1));
     // pop context again
     Navigator.pop(context);
   }
@@ -157,6 +161,14 @@ class _CreatePostState extends State<CreatePost> {
                 ),
                 const SizedBox(height: 10),
                 // Select .run file
+                // if file is selected, show file name for last 3 lines
+                if (_file != null) ...[
+                  const Text('Selected file:'),
+                  const SizedBox(height: 10),
+                  Text(_file!.path.split('/').last),
+                  const SizedBox(height: 10),
+                ],
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () => getFile(),
                   child: const Text('Select .run file'),
