@@ -129,16 +129,21 @@ class _UserLandingScreen extends State<UserLanding> {
         // print(doc["imageUrl"]);
         // print(doc["movieUrl"]);
         // print(doc["author"]);
-        postModel.add(Post(
+        Post post = Post(
           author: doc["author"],
           title: doc["title"],
           description: doc["description"],
           // runFileUrl: doc["runFileUrl"],
           datePosted: (doc["datePosted"] as Timestamp).toDate(),
           id: doc.id,
-          thumbnailLink: doc["thumbnailLink"],
-          videoLink: doc["videoLink"],
-        ));
+        );
+        try {
+          post.thumbnailLink = doc["thumbnailLink"];
+          post.videoLink = doc["videoLink"];
+        } catch (e) {
+          print(e);
+        }
+        postModel.add(post);
       }
       // set _loading to false
       setState(() {
