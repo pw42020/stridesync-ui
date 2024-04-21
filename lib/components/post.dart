@@ -1,16 +1,17 @@
 /// post object and rendering
 ///
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:stridesync_ui/secondsMinutesHoursDaysAgo.dart';
+import 'package:stridesync_ui/user_landing.dart';
 
-class Post extends StatelessWidget {
+class Post extends StatefulWidget {
   final String title;
   final String description;
   final String id;
   final String author;
-  final Timestamp datePosted;
+  final DateTime datePosted;
   // final String runFileUrl;
   String? thumbnailLink;
   String? videoLink;
@@ -27,11 +28,38 @@ class Post extends StatelessWidget {
     this.videoLink,
   }) : super(key: key);
 
+  @override
+  PostState createState() => PostState();
+}
+
+class PostState extends State<Post> {
+  // Image? _imageToShow;
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _imageToShow = Image.network(
+  //       widget.thumbnailLink ??
+  //           'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Square_gray.svg/1200px-Square_gray.svg.png',
+  //       width: 100,
+  //       height: 100,
+  //       fit: BoxFit.cover);
+  // }
+
+  // updateImageToThumbnailLink() {
+  //   setState(() {
+  //     _imageToShow = Image.network(widget.thumbnailLink!,
+  //         width: 100, height: 100, fit: BoxFit.cover);
+  //   });
+  // }
+
   // get device height, device width
   // double deviceHeight = MediaQuery.of(context).size.width;
+  // add as listener to PostListModel
 
   @override
   Widget build(BuildContext context) {
+    PostListModel postListModel =
+        Provider.of<PostListModel>(context, listen: true);
     return Card(
         child: Container(
       padding: const EdgeInsets.all(10),
@@ -48,10 +76,10 @@ class Post extends StatelessWidget {
               color: Colors.redAccent,
             ),
             child: Image.network(
-                thumbnailLink ??
+                widget.thumbnailLink ??
                     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Square_gray.svg/1200px-Square_gray.svg.png',
-                width: 150,
-                height: 150,
+                width: 100,
+                height: 100,
                 fit: BoxFit.cover),
           ),
           Container(
@@ -67,15 +95,15 @@ class Post extends StatelessWidget {
               children: [
                 // Text(author),
                 Text(
-                  title,
+                  widget.title,
                   textAlign: TextAlign.start,
                   // make bold
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                Text(description),
+                Text(widget.description),
                 // add amount of time ago in bottom right
-                Text(secondsMinutesHoursDaysAgo(datePosted.toDate()),
+                Text(secondsMinutesHoursDaysAgo(widget.datePosted),
                     textAlign: TextAlign.end,
                     style: const TextStyle(fontSize: 12)),
               ],

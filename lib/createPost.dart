@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:stridesync_ui/components/post.dart';
+import 'package:stridesync_ui/user_landing.dart';
 
 class CreatePost extends StatefulWidget {
   const CreatePost({Key? key}) : super(key: key);
@@ -74,27 +77,37 @@ class CreatePostState extends State<CreatePost> {
     try {
       // get user's uid
       final uid = FirebaseAuth.instance.currentUser!.uid;
+      print('file name: ${_file!.path}');
       final ref =
           FirebaseStorage.instance.ref().child('runs/$uid/${_file!.path}');
       await ref.putFile(_file!);
-      // add title, description to firestore
-      await FirebaseFirestore.instance.collection('users/$uid/posts').add({
+      // add post to firestore, get ID
+      var post =
+          await FirebaseFirestore.instance.collection('users/$uid/posts').add({
         'title': _titleController.text,
         'author': uid,
         'description': _descriptionController.text,
         'runFileUrl': await ref.getDownloadURL(),
-        'datePosted': FieldValue.serverTimestamp(),
+        'datePosted': DateTime.now(),
       });
+      // get ID of post
+      final postId = post.id;
+      Provider.of<PostListModel>(context, listen: false).addToFront(Post(
+          title: _titleController.text,
+          author: uid,
+          description: _descriptionController.text,
+          datePosted: DateTime.now(),
+          id: postId));
       // get /users/uid, add post to user's posts
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'posts': FieldValue.arrayUnion([uid]),
+        'posts': FieldValue.arrayUnion([postId]),
       });
     } catch (e) {
       print(e);
       // ignore: use_build_context_synchronously
-      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      //   content: Text('Error uploading file'),
-      // ));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Error uploading file'),
+      ));
     }
     // close modal
     Navigator.pop(context);
@@ -180,6 +193,13 @@ class CreatePostState extends State<CreatePost> {
                     _submitPost();
                   },
                   child: const Text('Submit'),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Go back'),
                 ),
               ],
             ),

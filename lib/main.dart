@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:stridesync_ui/createPost.dart';
 import 'package:stridesync_ui/login.dart';
 import 'package:stridesync_ui/user_landing.dart';
@@ -33,7 +34,10 @@ Future<void> main() async {
     // ignore: avoid_print
     print(e);
   }
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => PostListModel(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
