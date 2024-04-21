@@ -1,6 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:stridesync_ui/PostScreen.dart';
+import 'package:stridesync_ui/createPost.dart';
 import 'package:stridesync_ui/login.dart';
 import 'package:stridesync_ui/user_landing.dart';
 
@@ -13,12 +19,26 @@ Future<void> main() async {
         appId: "1:428070319156:web:8ebacaff969ae4a3d24661",
         messagingSenderId: "428070319156",
         projectId: "stridesync-2ded9",
+        storageBucket: "stridesync-2ded9.appspot.com",
       ),
     );
   } else {
     await Firebase.initializeApp();
   }
-  runApp(const MyApp());
+  try {
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
+    await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    // print connected to emulator
+    debugPrint('Connected to the Firebase Emulator Suite');
+  } catch (e) {
+    // ignore: avoid_print
+    print(e);
+  }
+  runApp(ChangeNotifierProvider(
+    create: (context) => PostListModel(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +51,8 @@ class MyApp extends StatelessWidget {
         // home: HomePage(),
         routes: {
           "/": (context) => const HomePage(),
-          "/landing": (context) => userLanding(),
+          "/landing": (context) => const UserLanding(),
+          "/createPost": (context) => const CreatePost(),
         });
   }
 }
