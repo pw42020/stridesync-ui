@@ -16,6 +16,8 @@ class Post extends StatefulWidget {
   // final String runFileUrl;
   String? thumbnailLink;
   String? videoLink;
+  String? stridePlot;
+  String? cadencePlot;
 
   Post({
     Key? key,
@@ -24,9 +26,10 @@ class Post extends StatefulWidget {
     required this.id,
     required this.author,
     required this.datePosted,
-    // required this.runFileUrl,
     this.thumbnailLink,
     this.videoLink,
+    this.stridePlot,
+    this.cadencePlot,
   }) : super(key: key);
 
   @override
@@ -59,8 +62,7 @@ class PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
-    PostListModel postListModel =
-        Provider.of<PostListModel>(context, listen: true);
+    PostListModel _ = Provider.of<PostListModel>(context, listen: true);
     return GestureDetector(
         onTap: () => {
               // if thumbnail link or video link is null, show modal that says

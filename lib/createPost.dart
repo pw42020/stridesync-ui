@@ -105,9 +105,9 @@ class CreatePostState extends State<CreatePost> {
     } catch (e) {
       print(e);
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Error uploading file'),
-      ));
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      //   content: Text('Error uploading file'),
+      // ));
     }
     // close modal
     Navigator.pop(context);
