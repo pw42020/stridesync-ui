@@ -16,11 +16,16 @@ class PostListModel extends ChangeNotifier {
   UnmodifiableListView<Post> get posts => UnmodifiableListView(_posts);
 
   _updatePostValues(data, item) {
-    if (data["thumbnailLink"] != null && data["videoLink"] != null) {
+    if (data["thumbnailLink"] != null &&
+        data["videoLink"] != null &&
+        data["stridePlot"] != null &&
+        data["cadencePlot"] != null) {
       print("updating post values");
       final index = _posts.indexWhere((element) => element.id == item.id);
       _posts[index].thumbnailLink = data["thumbnailLink"];
       _posts[index].videoLink = data["videoLink"];
+      _posts[index].stridePlot = data["stridePlot"];
+      _posts[index].cadencePlot = data["cadencePlot"];
       // refresh entire state
       // find index of item in _posts and update it
       print("index of item: $index");
@@ -97,16 +102,23 @@ class _UserLandingScreen extends State<UserLanding> {
         // print(doc["imageUrl"]);
         // print(doc["movieUrl"]);
         // print(doc["author"]);
-        postModel.add(Post(
+        Post post = Post(
           author: doc["author"],
           title: doc["title"],
           description: doc["description"],
           // runFileUrl: doc["runFileUrl"],
           datePosted: (doc["datePosted"] as Timestamp).toDate(),
           id: doc.id,
-          thumbnailLink: doc["thumbnailLink"],
-          videoLink: doc["videoLink"],
-        ));
+        );
+        try {
+          post.thumbnailLink = doc["thumbnailLink"];
+          post.videoLink = doc["videoLink"];
+          post.stridePlot = doc["stridePlot"];
+          post.cadencePlot = doc["cadencePlot"];
+        } catch (e) {
+          print(e);
+        }
+        postModel.add(post);
       }
       // set _loading to false
       setState(() {
@@ -140,6 +152,8 @@ class _UserLandingScreen extends State<UserLanding> {
         try {
           post.thumbnailLink = doc["thumbnailLink"];
           post.videoLink = doc["videoLink"];
+          post.stridePlot = doc["stridePlot"];
+          post.cadencePlot = doc["cadencePlot"];
         } catch (e) {
           print(e);
         }
