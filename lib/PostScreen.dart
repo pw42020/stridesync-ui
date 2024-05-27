@@ -107,15 +107,19 @@ class PostScreenState extends State<PostScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(
-                              height: constraints.maxHeight * 0.45,
-                              child: Image.network(widget.post.stridePlot!,
-                                  fit: BoxFit.contain)),
+                          widget.post.stridePlot != null
+                              ? SizedBox(
+                                  height: constraints.maxHeight * 0.45,
+                                  child: Image.network(widget.post.stridePlot!,
+                                      fit: BoxFit.contain))
+                              : Container(),
                           const SizedBox(height: 10),
-                          SizedBox(
-                              height: constraints.maxHeight * 0.45,
-                              child: Image.network(widget.post.cadencePlot!,
-                                  fit: BoxFit.contain))
+                          widget.post.stridePlot != null
+                              ? SizedBox(
+                                  height: constraints.maxHeight * 0.45,
+                                  child: Image.network(widget.post.cadencePlot!,
+                                      fit: BoxFit.contain))
+                              : Container()
                         ]),
                   ]));
         }));
